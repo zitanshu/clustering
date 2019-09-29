@@ -1,6 +1,8 @@
 from collections import defaultdict
 from math import inf
+import pandas
 import random
+import numpy
 import csv
 
 
@@ -11,7 +13,10 @@ def point_avg(points):
     
     Returns a new point which is the center of all the points.
     """
-    raise NotImplementedError()
+    df = pandas.DataFrame(points)
+    new_point = df.mean(axis=0).tolist()
+    return new_point
+
 
 
 def update_centers(data_set, assignments):
@@ -21,7 +26,21 @@ def update_centers(data_set, assignments):
     Compute the center for each of the assigned groups.
     Return `k` centers in a list
     """
-    raise NotImplementedError()
+    k = max(assignments)
+    result = []
+    for cluster in range(k+1):
+        #all_points contains all the points that belongs to the same assignment
+        all_points = []
+        for i in range(len(assignments)):
+            if assignments[i] == cluster:
+                point = data_set[i]
+                all_points.append(point)
+        
+        new_center = point_avg(all_points)
+        result.append(new_center)
+    return result
+
+
 
 
 def assign_points(data_points, centers):
@@ -44,7 +63,11 @@ def distance(a, b):
     """
     Returns the Euclidean distance between a and b
     """
-    raise NotImplementedError()
+
+    x = numpy.asarray(a)
+    y = numpy.asarray(b)
+    dist = numpy.linalg.norm(x-y)
+    return dist
 
 
 def generate_k(data_set, k):
@@ -52,11 +75,19 @@ def generate_k(data_set, k):
     Given `data_set`, which is an array of arrays,
     return a random set of k points from the data_set
     """
-    raise NotImplementedError()
+    list_of_idx = random.sample(range(len(data_set)),k)
+    result = []
+    for element in list_of_idx:
+        point = data_set[element]
+        result.append(point)
+    
+    return result
 
 
 def get_list_from_dataset_file(dataset_file):
-    raise NotImplementedError()
+    df = pandas.read_csv(dataset_file)
+    result = df.values.tolist()
+    return result
 
 
 def cost_function(clustering):
@@ -76,3 +107,5 @@ def k_means(dataset_file, k):
     for assignment, point in zip(assignments, dataset):
         clustering[assignment].append(point)
     return clustering
+
+#print(k_means("../tests/test_files/dataset_1_k_is_2_0.csv",2))
